@@ -1,59 +1,102 @@
-import express from "express";
-import cors from "cors";
-import nodemailer from "nodemailer";
+// api/index.js
+// Vercel serverless function for /api/registrations
+// Uses the same env vars as defined in .env.example
+
+import express from 'express';
+import cors from 'cors';
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
-
-app.use(cors({ origin: "*" }));
+app.use(cors());
 app.use(express.json());
 
-app.post("/api/registrations", async (req, res) => {
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || "mail.particleswithoutborders.com",
-    port: Number(process.env.EMAIL_PORT) || 26,
-    secure: process.env.EMAIL_SECURE === "true",
+// Email transporter — matches .env.example EMAIL_* variables
+function createTransporter() {
+  return nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: parseInt(process.env.EMAIL_PORT || '465'),
+    secure: process.env.EMAIL_SECURE === 'true',
     auth: {
-      user: process.env.EMAIL_USER || "admin@particleswithoutborders.com", 
+      user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    tls: {
-      rejectUnauthorized: false
-    }
   });
+}
 
+// POST /api/registrations
+app.post('/api/registrations', async (req, res) => {
   try {
-    const id = "REG-" + Math.random().toString(36).slice(2, 10).toUpperCase();
-    const { name, email, category } = req.body;
-    console.log("New registration:", req.body);
+    const data = req.body;
 
-    const info = await transporter.sendMail({
-      from: '"Particles Without Borders" <admin@particleswithoutborders.com>',
-      to: email,
-      bcc: "scientific@particleswithoutborders.com, secretariat@particleswithoutborders.com",
-      replyTo: "secretariat@particleswithoutborders.com",
-      subject: "Registration Confirmed — Particles Without Borders 2026",
-      html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 32px;">
-          <h1 style="color: #0e7490;">Registration Confirmed!</h1>
-          <p>Dear <strong>${name}</strong>,</p>
-          <p>Thank you for registering for <strong>Particles Without Borders 2026</strong>.</p>
-          <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 12px; padding: 20px; margin: 24px 0;">
-            <p style="margin: 0 0 8px 0;"><strong>Reference ID:</strong> ${id}</p>
-            <p style="margin: 0 0 8px 0;"><strong>Category:</strong> ${category}</p>
-          </div>
-          <p>Our team will review your submission and send payment instructions within 3 working days.</p>
-          <p>Questions? Email us at <a href="mailto:secretariat@particleswithoutborders.com">secretariat@particleswithoutborders.com</a></p>
-          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 32px 0;" />
-          <p style="color: #94a3b8; font-size: 12px;">Particles Without Borders · KLCC, Kuala Lumpur · 16 November 2026</p>
-        </div>
-      `
+    // Forward registration to Supabase
+    const supabaseUrl = `https://lmzftlvxoncqdonbkcyd.supabase.co/rest/v1/registrations`;
+    const supabaseRes = await fetch(supabaseUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': process.env.SUPABASE_ANON_KEY || '',
+        'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY || ''}`,
+        'Prefer': 'return=representation',
+      },
+      body: JSON.stringify(data),
     });
 
-    console.log("Message sent to %s: %s", email, info.messageId);
-    res.json({ ok: true, registration: { id } });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Registration failed. Please try again." });
+    const result = await supabaseRes.json();
+
+    if (!supabaseRes.ok) {
+      throw new Error(result?.message || 'Supabase insert failed');
+    }
+
+    // Send confirmation email if email is provided
+    if (data.email) {
+      try {
+        const transporter = createTransporter();
+        await transporter.sendMail({
+          from: `"Particles Without Borders" <${process.env.EMAIL_USER}>`,
+          to: data.email,
+          subject: 'Registration Received – Particles Without Borders',
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto;">
+              <h2>Thank you for registering!</h2>
+              <p>We have received your registration for <strong>Particles Without Borders</strong> and will review it shortly.</p>
+              <p>We will be in touch with further details soon.</p>
+              <br/>
+              <p>Warm regards,<br/>Particles Without Borders Team</p>
+            </div>
+          `,
+        });
+      } catch (emailErr) {
+        // Don't fail the whole request if email fails
+        console.error('Email send error:', emailErr);
+      }
+    }
+
+    res.status(201).json({ success: true, data: result });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Failed to submit registration', details: error.message });
+  }
+});
+
+// GET /api/registrations
+app.get('/api/registrations', async (req, res) => {
+  try {
+    const supabaseUrl = `https://lmzftlvxoncqdonbkcyd.supabase.co/rest/v1/registrations?select=*&order=created_at.desc`;
+    const supabaseRes = await fetch(supabaseUrl, {
+      headers: {
+        'apikey': process.env.SUPABASE_ANON_KEY || '',
+        'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY || ''}`,
+      },
+    });
+
+    const data = await supabaseRes.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch registrations' });
   }
 });
 
