@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0c4a6e"/>
+      <stop offset="50%" stop-color="#155e75"/>
+      <stop offset="100%" stop-color="#065f46"/>
+    </linearGradient>
+    <linearGradient id="tower" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0e7490" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.95"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <circle cx="1280" cy="200" r="90" fill="#fef3c7" opacity="0.25"/>
+  <g fill="url(#tower)">
+    <polygon points="660,900 660,260 700,200 740,260 740,900"/>
+    <polygon points="860,900 860,260 900,200 940,260 940,900"/>
+    <rect x="780" y="420" width="40" height="200"/>
+  </g>
+  <g fill="#0f172a" opacity="0.7">
+    <rect x="200" y="600" width="180" height="300"/>
+    <rect x="420" y="520" width="160" height="380"/>
+    <rect x="1000" y="540" width="200" height="360"/>
+    <rect x="1240" y="620" width="180" height="280"/>
+    <rect x="1450" y="660" width="120" height="240"/>
+  </g>
+  <g fill="#fde68a" opacity="0.5">
+    <rect x="220" y="640" width="6" height="6"/><rect x="240" y="660" width="6" height="6"/><rect x="270" y="680" width="6" height="6"/>
+    <rect x="440" y="560" width="6" height="6"/><rect x="470" y="600" width="6" height="6"/><rect x="510" y="640" width="6" height="6"/>
+    <rect x="1020" y="580" width="6" height="6"/><rect x="1060" y="620" width="6" height="6"/><rect x="1100" y="660" width="6" height="6"/>
+    <rect x="1260" y="660" width="6" height="6"/><rect x="1300" y="700" width="6" height="6"/>
+  </g>
+</svg>

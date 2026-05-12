@@ -1,0 +1,24 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/registrations",
+      "destination": "https://YOUR_PROJECT_REF.supabase.co/functions/v1/registrations"
+    },
+    {
+      "source": "/api/admin/registrations",
+      "destination": "https://YOUR_PROJECT_REF.supabase.co/functions/v1/admin-registrations"
+    },
+    {
+      "source": "/api/admin/registrations/:id/decision",
+      "destination": "https://YOUR_PROJECT_REF.supabase.co/functions/v1/admin-decision?id=:id"
+    },
+    {
+      "source": "/api/admin/registrations/:id/invoice",
+      "destination": "https://YOUR_PROJECT_REF.supabase.co/functions/v1/admin-invoice?id=:id"
+    },
+    {
+      "source": "/api/admin/registrations/:id/custom-email",
+      "destination": "https://YOUR_PROJECT_REF.supabase.co/functions/v1/admin-custom-email?id=:id"
+    }
+  ]
+}

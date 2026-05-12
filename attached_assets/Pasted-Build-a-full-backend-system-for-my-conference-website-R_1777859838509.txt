@@ -1,0 +1,105 @@
+Build a full backend system for my conference website (React frontend already exists). Use Node.js + Express + SQLite (or PostgreSQL if easier). The system must include:
+
+1. REGISTRATION API
+   Create POST /api/registrations:
+
+* Accept JSON payload:
+  name, email, affiliation, country, category, subRole (presenter/listener), theme, paperTitle, keywords, dietary, visa, reviewer
+* Save into database table "registrations"
+* Add fields:
+  id (auto), created_at, payment_status ("Pending"), invoice_id (nullable)
+
+2. RESPONSE BEHAVIOR
+
+* On success: return JSON { success: true, id: registration_id }
+* On failure: return proper error message
+
+3. EMAIL NOTIFICATION
+
+* Automatically send email to: [secretariat@particleswithoutborders.org](mailto:secretariat@particleswithoutborders.org)
+* Email subject: "New Conference Registration"
+* Include all submitted details
+* Use Nodemailer (SMTP Gmail or configurable)
+
+4. ADMIN PANEL (simple protected route)
+   Create /admin page:
+
+* List all registrations in table
+* Columns: Name, Email, Category, Theme, Payment Status, Date
+* Add button: "Generate Invoice"
+
+5. INVOICE SYSTEM
+   When admin clicks "Generate Invoice":
+
+* Create invoice record in "invoices" table:
+  invoice_id, registration_id, amount, status ("Unpaid"), created_at
+* Update registration.invoice_id
+* Send email to user:
+  Subject: "Invoice for Conference Registration"
+  Include:
+
+  * invoice number
+  * amount
+  * payment instructions
+
+6. PAYMENT (OPTIONAL NOW, PAY LATER)
+
+* Payment is NOT required during registration
+* User can pay later via:
+  a) Credit card (Stripe link placeholder)
+  b) Manual bank transfer
+* Invoice email must include:
+  "You may complete payment later via the provided methods"
+
+7. DATABASE STRUCTURE
+
+Table: registrations
+
+* id (PK)
+* name
+* email
+* affiliation
+* country
+* category
+* subRole
+* theme
+* paperTitle
+* keywords
+* dietary
+* visa
+* reviewer
+* payment_status
+* invoice_id
+* created_at
+
+Table: invoices
+
+* id (PK)
+* registration_id (FK)
+* amount
+* status
+* created_at
+
+8. FRONTEND INTEGRATION
+
+* Keep existing frontend form
+* Ensure POST /api/registrations works with current payload
+* Return success so frontend shows "Registration successful"
+
+9. EXTRA REQUIREMENTS
+
+* Use clean modular structure:
+  /server
+  /routes
+  /controllers
+  /models
+* Add basic validation
+* Enable CORS
+* Use dotenv for email credentials
+
+10. BONUS (if possible)
+
+* Add "Mark as Paid" button in admin panel
+* Update payment_status
+
+Make sure everything runs in Replit with minimal setup.

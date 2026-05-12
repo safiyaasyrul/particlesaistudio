@@ -1,0 +1,1116 @@
+import { useState, useEffect } from "react";
+import { Link } from "wouter";
+import logoUrl from "/logo.png";
+import klccBg from "/klcc-bg.png";
+import particlesPlusLogo from "@assets/unnamed_1776763019966.png";
+import upmLogo from "@assets/image_1776763019967.png";
+
+const NAV = [
+  { id: "home", label: "Home" },
+  { id: "about", label: "About" },
+  { id: "papers", label: "Call for Papers" },
+  { id: "registration", label: "Registration" },
+  { id: "dates", label: "Important Dates" },
+  { id: "sponsors", label: "Sponsors" },
+  { id: "contact", label: "Contact" },
+];
+
+const THEMES = [
+  "Exposure Assessment and Health Risk Evaluation Based on Advanced Air Quality Measurements",
+  "Indoor Air Quality Monitoring Technologies and Human Health Implications",
+  "Measurement and Monitoring of Aerosols, Microplastics, and Emerging Airborne Contaminants",
+  "Smart Sensors, Big Data Analytics, Air Quality Modelling, and Remote Sensing Applications",
+  "Characterisation of Air Pollution Sources and Emissions Using Advanced Monitoring Technologies",
+];
+
+const SPONSORS = [
+  {
+    tier: "Gold",
+    name: "Particles Plus",
+    logo: particlesPlusLogo,
+    url: "https://www.particlesplus.com",
+  },
+  { tier: "Gold", name: "GreenFleet Maritime" },
+  { tier: "Silver", name: "EcoMonitor Asia" },
+  { tier: "Silver", name: "Petronas Research" },
+  { tier: "Bronze", name: "Clean Air Coalition" },
+  { tier: "Bronze", name: "AirLink Sensors" },
+];
+
+type Partner = { name: string; logo?: string };
+const PARTNERS: Partner[] = [
+  
+  { name: "Asian Institute of Technology" },
+  { name: "WHO Collaborating Centre" },
+  { name: "ASEAN Clean Air Network" },
+  { name: "Malaysian Meteorological Dept." },
+];
+
+const TOPICS = [
+  {
+    title:
+      "Exposure Assessment and Health Risk Evaluation Based on Advanced Air Quality Measurements",
+    desc: "Assessing human exposure to air pollution and related health risks using advanced monitoring methods.",
+  },
+  {
+    title:
+      "Indoor Air Quality Monitoring Technologies and Human Health Implications",
+    desc: "Monitoring indoor air pollution and understanding its effects on human health and wellbeing.",
+  },
+  {
+    title:
+      "Measurement and Monitoring of Aerosols, Microplastics, and Emerging Airborne Contaminants",
+    desc: "Studying airborne particles and emerging pollutants and their impact on environment and health.",
+  },
+  {
+    title:
+      "Smart Sensors, Big Data Analytics, Air Quality Modelling, and Remote Sensing Applications",
+    desc: "Using sensors, data analytics, and modelling tools to monitor and predict air quality.",
+  },
+  {
+    title:
+      "Characterisation of Air Pollution Sources and Emissions Using Advanced Monitoring Technologies",
+    desc: "Identifying pollution sources and emissions using advanced monitoring and analysis techniques.",
+  },
+];
+
+const DATES = [
+  { date: "30 Jun 2026", label: "Abstract Submission Opens" },
+  { date: "31 Aug 2026", label: "Abstract Submission Deadline" },
+  { date: "15 Sep 2026", label: "Notification of Acceptance" },
+  { date: "30 Sep 2026", label: "Early Bird Registration Deadline" },
+  { date: "31 Oct 2026", label: "Final Registration Deadline" },
+  { date: "16 Nov 2026", label: "Conference Day — KLCC, Kuala Lumpur" },
+];
+
+type Tier = {
+  key: string;
+  name: string;
+  early: string;
+  regular: string;
+  perks: string[];
+  highlight?: boolean;
+};
+
+const TIERS: Tier[] = [
+  {
+    key: "industry",
+    name: "Industry / Participant",
+    early: "MYR 400",
+    regular: "MYR 500",
+    perks: [
+      "Full conference access",
+      "Lunch & coffee breaks",
+      "Conference kit & e-certificate",
+      "Networking dinner",
+    ],
+  },
+  {
+    key: "presenter",
+    name: "Presenter",
+    early: "MYR 200",
+    regular: "MYR 250",
+    highlight: true,
+    perks: [
+      "Oral / poster presentation slot",
+      "Full conference access",
+      "Publications",
+      "Lunch, coffee & networking dinner",
+    ],
+  },
+  {
+    key: "student",
+    name: "Student",
+    early: "MYR 100",
+    regular: "MYR 150",
+    perks: [
+      "Full conference access",
+      "Publications",
+      "E-certificate",
+      "Lunch & coffee breaks",
+    ],
+  },
+];
+
+function Particles() {
+  const items = Array.from({ length: 70 });
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {items.map((_, i) => {
+        const size = 3 + Math.random() * 16;
+        const left = Math.random() * 100;
+        const dur = 6 + Math.random() * 12;
+        const delay = Math.random() * 2;
+        const drift = (Math.random() * 60 - 30).toFixed(1);
+        const opacity = 0.35 + Math.random() * 0.55;
+        const blur = Math.random() < 0.3 ? "blur(1px)" : "none";
+        return (
+          <span
+            key={i}
+            className="particle"
+            style={{
+              width: `${size}px`,
+              height: `${size}px`,
+              left: `${left}%`,
+              bottom: `-${size}px`,
+              opacity,
+              filter: blur,
+              animationDuration: `${dur}s`,
+              animationDelay: `${delay}s`,
+              ["--drift" as string]: `${drift}px`,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function Header({
+  active,
+  onNav,
+}: {
+  active: string;
+  onNav: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/80 border-b border-cyan-100/60">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+        <button
+          onClick={() => onNav("home")}
+          className="flex items-center gap-3"
+          data-testid="link-home-logo"
+        >
+          <img
+            src={logoUrl}
+            alt="Particles Without Borders"
+            className="h-12 w-auto"
+          />
+          <div className="hidden sm:block leading-tight">
+            <div className="font-bold text-sm gradient-text">
+              Particles Without Borders
+            </div>
+            <div className="text-[10px] text-muted-foreground tracking-wide uppercase">
+              KLCC · 16 Nov 2026
+            </div>
+          </div>
+        </button>
+        <nav className="hidden lg:flex items-center gap-1">
+          {NAV.map((n) => (
+            <button
+              key={n.id}
+              onClick={() => onNav(n.id)}
+              className={`px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                active === n.id
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground hover:bg-cyan-50"
+              }`}
+              data-testid={`link-nav-${n.id}`}
+            >
+              {n.label}
+            </button>
+          ))}
+          <Link
+            href="/sponsorship"
+            className="px-3 py-2 rounded-full text-sm font-medium text-foreground hover:bg-cyan-50"
+            data-testid="link-nav-sponsorship"
+          >
+            Sponsorship
+          </Link>
+        </nav>
+        <button
+          className="lg:hidden p-2 rounded-md hover:bg-cyan-50"
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Toggle menu"
+        >
+          <div className="w-6 h-0.5 bg-foreground mb-1.5" />
+          <div className="w-6 h-0.5 bg-foreground mb-1.5" />
+          <div className="w-6 h-0.5 bg-foreground" />
+        </button>
+      </div>
+      {open && (
+        <div className="lg:hidden bg-white border-t border-cyan-100 px-4 py-3 flex flex-col gap-1">
+          {NAV.map((n) => (
+            <button
+              key={n.id}
+              onClick={() => {
+                onNav(n.id);
+                setOpen(false);
+              }}
+              className="text-left px-4 py-2 rounded-md hover:bg-cyan-50 text-sm font-medium"
+            >
+              {n.label}
+            </button>
+          ))}
+          <Link
+            href="/sponsorship"
+            className="text-left px-4 py-2 rounded-md hover:bg-cyan-50 text-sm font-medium"
+            onClick={() => setOpen(false)}
+          >
+            Sponsorship
+          </Link>
+        </div>
+      )}
+    </header>
+  );
+}
+
+function Hero({ onNav }: { onNav: (id: string) => void }) {
+  return (
+    <section
+      id="home"
+      className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden"
+    >
+      {/* KLCC background */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${klccBg})` }}
+      />
+     <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/75 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-white/95 via-white/40 to-transparent" />
+      <Particles />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center w-full">
+       <div className="text-slate-900 fade-in bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-sm max-w-xl">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur border border-white/30 text-xs font-medium uppercase tracking-wider mb-6">
+            <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+            16 November 2026 · KLCC, Kuala Lumpur
+          </div>
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] mb-5 drop-shadow-lg">
+            Particles
+            <br />
+            <span className="bg-gradient-to-r from-emerald-300 to-cyan-200 bg-clip-text text-transparent">
+              Without Borders
+            </span>
+          </h1>
+          <p className="text-xl sm:text-2xl font-light italic mb-4 text-slate-600">
+            Air Quality, Health &amp; Sustainable Solutions
+          </p>
+          <p className="text-base sm:text-lg text-slate-700 max-w-xl mb-8 leading-relaxed">
+            An international gathering of scientists, engineers and policymakers
+            advancing the understanding of particles, emissions and sustainable
+            solutions for cleaner air and healthier communities.
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <button
+              onClick={() => onNav("registration")}
+              className="px-7 py-3.5 rounded-full bg-white text-primary font-semibold shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all"
+              data-testid="button-register-hero"
+            >
+              Register Now
+            </button>
+            <button
+              onClick={() => onNav("registration")}
+              className="px-7 py-3.5 rounded-full bg-emerald-500 text-white font-semibold shadow-xl hover:bg-emerald-400 hover:-translate-y-0.5 transition-all"
+              data-testid="button-submit-hero"
+            >
+              Submit Abstract
+            </button>
+          </div>
+        </div>
+
+        <div className="relative flex justify-center items-center">
+          <div className="absolute inset-0 bg-gradient-radial from-white/60 via-white/20 to-transparent blur-3xl" />
+          <div className="relative p-4 sm:p-6 float-anim">
+            <img
+              src={logoUrl}
+              alt="Particles Without Borders Logo"
+              className="w-full max-w-sm sm:max-w-md mx-auto h-auto"
+              data-testid="img-hero-logo"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Section({
+  id,
+  title,
+  kicker,
+  children,
+}: {
+  id: string;
+  title: string;
+  kicker?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section id={id} className="py-20 sm:py-28 px-4 sm:px-6 scroll-mt-20">
+      <div className="max-w-7xl mx-auto">
+        {kicker && (
+          <div className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">
+            {kicker}
+          </div>
+        )}
+        <h2 className="text-3xl sm:text-5xl font-bold mb-10 text-foreground">
+          {title}
+        </h2>
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function About() {
+  return (
+    <Section
+      id="about"
+      kicker="About the Conference"
+      title="Particles Without Borders: Air Quality, Health & Sustainable Solutions"
+    >
+      <div className="grid md:grid-cols-3 gap-8">
+        <div className="md:col-span-2 text-lg text-muted-foreground leading-relaxed space-y-4">
+          <p>
+            <strong className="text-foreground">
+              Particles Without Borders
+            </strong>{" "}
+            brings together a global community of researchers, industry leaders
+            and policymakers tackling one of the most pressing environmental
+            challenges of our time — airborne particulate matter, its sources,
+            its transport across boundaries and its impact on human and
+            planetary health.
+          </p>
+          <p>
+            Hosted at the iconic Kuala Lumpur Convention Centre (KLCC), the 2026
+            edition explores air pollution, marine emissions, energy systems,
+            nanoparticles and AI modelling — and the sustainable pathways that
+            connect them.
+          </p>
+        </div>
+        <div className="rounded-2xl bg-gradient-to-br from-primary to-secondary text-white p-8 shadow-xl">
+          <div className="text-5xl font-extrabold mb-2">300+</div>
+          <div className="text-sm uppercase tracking-wider opacity-90 mb-6">
+            Expected Delegates
+          </div>
+          <div className="text-3xl font-bold mb-1">25+</div>
+          <div className="text-sm uppercase tracking-wider opacity-90 mb-6">
+            Countries Represented
+          </div>
+          <div className="text-3xl font-bold mb-1">40+</div>
+          <div className="text-sm uppercase tracking-wider opacity-90">
+            Invited Speakers
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function CallForPapers() {
+  return (
+    <Section id="papers" kicker="Call for Papers" title="Conference themes.">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {TOPICS.map((t, i) => (
+          <div
+            key={i}
+            className="group p-7 rounded-2xl bg-white border border-cyan-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all"
+            data-testid={`card-topic-${i}`}
+          >
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-xl font-bold mb-4 group-hover:scale-110 transition-transform">
+              {String(i + 1).padStart(2, "0")}
+            </div>
+            <h3 className="text-xl font-bold mb-2">{t.title}</h3>
+            <p className="text-muted-foreground leading-relaxed">{t.desc}</p>
+          </div>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+type RegistrationTab = "fees" | "register";
+
+function Registration() {
+  const [tab, setTab] = useState<RegistrationTab>("fees");
+  const [tier, setTier] = useState<string>("presenter");
+
+  return (
+    <Section
+      id="registration"
+      kicker="Registration & Submission"
+      title="Join us in Kuala Lumpur."
+    >
+      <div className="flex flex-wrap gap-2 mb-8 p-1.5 bg-muted rounded-full w-fit">
+        {(
+          [
+            { k: "fees", label: "Fees" },
+            { k: "register", label: "Register" },
+          ] as { k: RegistrationTab; label: string }[]
+        ).map((t) => (
+          <button
+            key={t.k}
+            onClick={() => setTab(t.k)}
+            className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all ${
+              tab === t.k
+                ? "bg-primary text-primary-foreground shadow"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            data-testid={`tab-${t.k}`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "fees" && (
+        <div>
+          <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-emerald-100 text-emerald-800 text-sm font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            Early Bird ends 30 September 2026 — save up to 25%
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {TIERS.map((t) => (
+              <div
+                key={t.key}
+                className={`relative p-7 rounded-2xl border-2 transition-all flex flex-col ${
+                  t.highlight
+                    ? "border-primary bg-gradient-to-br from-cyan-50 to-emerald-50 shadow-2xl scale-[1.02]"
+                    : "border-cyan-100 bg-white shadow-sm hover:shadow-lg"
+                }`}
+                data-testid={`card-tier-${t.key}`}
+              >
+                {t.highlight && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wider">
+                    Most popular
+                  </div>
+                )}
+                <h3 className="text-2xl font-bold mb-1">{t.name}</h3>
+                <div className="text-sm text-muted-foreground mb-5">
+                  Conference fee per delegate
+                </div>
+                <div className="mb-1">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-extrabold gradient-text">
+                      {t.early}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      early bird
+                    </span>
+                  </div>
+                  <div className="text-sm text-muted-foreground line-through mt-1">
+                    {t.regular} regular
+                  </div>
+                </div>
+                <ul className="mt-6 space-y-2.5 flex-1">
+                  {t.perks.map((p, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm">
+                      <svg
+                        className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={3}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <span>{p}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={() => {
+                    setTier(t.key);
+                    setTab("register");
+                  }}
+                  className={`mt-6 w-full py-3 rounded-full font-semibold transition-all ${
+                    t.highlight
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "bg-foreground text-background hover:opacity-90"
+                  }`}
+                  data-testid={`button-select-${t.key}`}
+                >
+                  Select &amp; Register
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {tab === "register" && <RegistrationForm tier={tier} setTier={setTier} />}
+    </Section>
+  );
+}
+
+function RegistrationForm({
+  tier,
+  setTier,
+}: {
+  tier: string;
+  setTier: (t: string) => void;
+}) {
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [subRole, setSubRole] = useState<"presenter" | "listener">("presenter");
+  const [abstractFileName, setAbstractFileName] = useState<string>("");
+  const [studentIdFileName, setStudentIdFileName] = useState<string>("");
+  const selected = TIERS.find((t) => t.key === tier) ?? TIERS[0];
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    const f = new FormData(e.currentTarget);
+    const isPresenter = tier === "presenter";
+    const isStudent = tier === "student";
+    const payload: Record<string, unknown> = {
+      category: selected.name,
+      name: f.get("name"),
+      email: f.get("email"),
+      affiliation: f.get("affiliation"),
+      country: f.get("country"),
+      theme: f.get("theme"),
+      dietary: f.get("dietary") ?? "",
+      visa: f.get("visa"),
+      reviewer: f.get("reviewer"),
+      paymentStatus: f.get("paymentStatus"),
+    };
+    if (isPresenter) {
+      payload.subRole = subRole;
+      if (subRole === "presenter") {
+        payload.paperTitle = f.get("paperTitle");
+        payload.keywords = f.get("keywords");
+        payload.abstractFile = abstractFileName;
+      }
+    }
+    if (isStudent) {
+      payload.studentIdFile = studentIdFileName;
+    }
+    try {
+      const res = await fetch("/api/registrations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Registration failed");
+      setSavedId(data.registration?.id ?? null);
+      setSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-3xl bg-white p-8 rounded-2xl border border-cyan-100 shadow-sm space-y-5"
+    >
+      {submitted ? (
+        <div className="text-center py-10">
+          <div className="w-16 h-16 mx-auto rounded-full bg-emerald-100 flex items-center justify-center mb-4">
+            <svg
+              className="w-8 h-8 text-emerald-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={3}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <h3 className="text-2xl font-bold mb-2">Registration successful</h3>
+          <p className="text-muted-foreground">
+            An invoice and payment instructions will arrive in your inbox
+            shortly.
+          </p>
+          {savedId && (
+            <p className="mt-3 text-xs text-muted-foreground font-mono">
+              Reference: {savedId}
+            </p>
+          )}
+        </div>
+      ) : (
+        <>
+          <div>
+            <label className="text-sm font-semibold mb-2 block">
+              Participant category
+            </label>
+            <div className="grid sm:grid-cols-3 gap-2">
+              {TIERS.map((t) => (
+                <button
+                  type="button"
+                  key={t.key}
+                  onClick={() => setTier(t.key)}
+                  className={`p-3 rounded-xl text-sm font-semibold border-2 transition-all text-left ${
+                    tier === t.key
+                      ? "border-primary bg-primary/5"
+                      : "border-cyan-100 hover:border-cyan-300"
+                  }`}
+                  data-testid={`button-tier-${t.key}`}
+                >
+                  <div>{t.name}</div>
+                  <div className="text-xs font-normal text-muted-foreground mt-0.5">
+                    {t.early} early bird
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+          <Field label="Full name" name="name" required />
+          <Field label="Email" name="email" type="email" required />
+          <Field
+            label="Affiliation / Institution"
+            name="affiliation"
+            required
+          />
+          <Field label="Country" name="country" required />
+
+          {tier === "presenter" && (
+            <div className="p-5 rounded-xl border-2 border-cyan-100 bg-cyan-50/40 space-y-5">
+              <div>
+                <label className="text-sm font-semibold mb-2 block">
+                  Attending as
+                </label>
+                <div className="grid grid-cols-2 gap-2 p-1.5 bg-white rounded-full border border-cyan-100">
+                  {(["presenter", "listener"] as const).map((r) => (
+                    <button
+                      type="button"
+                      key={r}
+                      onClick={() => setSubRole(r)}
+                      className={`py-2 rounded-full text-sm font-semibold capitalize transition-all ${
+                        subRole === r
+                          ? "bg-primary text-primary-foreground"
+                          : "text-muted-foreground"
+                      }`}
+                      data-testid={`button-subrole-${r}`}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {subRole === "presenter"
+                    ? "You will present an oral or poster paper. Please submit your abstract below."
+                    : "You will attend sessions without presenting."}
+                </p>
+              </div>
+
+              {subRole === "presenter" && (
+                <>
+                  <Field label="Paper title" name="paperTitle" required />
+                  <Field
+                    label="Keywords (comma separated)"
+                    name="keywords"
+                    required
+                  />
+                  <div>
+                    <label className="text-sm font-semibold mb-2 block">
+                      Abstract upload (PDF / DOC / DOCX){" "}
+                      <span className="text-destructive">*</span>
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      required
+                      onChange={(e) =>
+                        setAbstractFileName(e.target.files?.[0]?.name ?? "")
+                      }
+                      className="block w-full text-sm file:mr-4 file:py-2.5 file:px-5 file:rounded-full file:border-0 file:bg-primary file:text-primary-foreground file:font-semibold hover:file:opacity-90"
+                      data-testid="input-abstract"
+                    />
+                    {abstractFileName && (
+                      <p className="text-xs text-muted-foreground mt-1.5">
+                        Selected: {abstractFileName}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {tier === "student" && (
+            <div className="p-5 rounded-xl border-2 border-cyan-100 bg-cyan-50/40 space-y-3">
+              <label className="text-sm font-semibold block">
+                Student ID card upload (PDF / JPG / PNG){" "}
+                <span className="text-destructive">*</span>
+              </label>
+              <p className="text-xs text-muted-foreground -mt-1">
+                A clear scan or photo of your valid student ID is required to
+                qualify for the student fee.
+              </p>
+              <input
+                type="file"
+                accept=".pdf,image/*"
+                required
+                onChange={(e) =>
+                  setStudentIdFileName(e.target.files?.[0]?.name ?? "")
+                }
+                className="block w-full text-sm file:mr-4 file:py-2.5 file:px-5 file:rounded-full file:border-0 file:bg-primary file:text-primary-foreground file:font-semibold hover:file:opacity-90"
+                data-testid="input-student-id"
+              />
+              {studentIdFileName && (
+                <p className="text-xs text-muted-foreground">
+                  Selected: {studentIdFileName}
+                </p>
+              )}
+            </div>
+          )}
+
+          <SelectField
+            label="Conference Theme"
+            name="theme"
+            required
+            options={THEMES}
+          />
+          <Field
+            label="Dietary Requirements"
+            name="dietary"
+            placeholder="e.g. vegetarian, halal, allergies"
+          />
+          <div className="grid sm:grid-cols-2 gap-5">
+            <SelectField
+              label="Visa Required?"
+              name="visa"
+              required
+              options={["No", "Yes"]}
+            />
+            <SelectField
+              label="Willing to be Reviewer?"
+              name="reviewer"
+              required
+              options={["No", "Yes"]}
+            />
+          </div>
+          <SelectField
+            label="Payment Status"
+            name="paymentStatus"
+            required
+            options={["Pending", "Paid"]}
+          />
+
+          <div className="p-4 rounded-xl bg-accent text-accent-foreground text-sm">
+            <strong>Selected:</strong> {selected.name} ·{" "}
+            <strong>{selected.early}</strong> early bird ({selected.regular}{" "}
+            regular)
+          </div>
+          {error && (
+            <div className="p-3 rounded-xl bg-red-50 text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="px-8 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 disabled:opacity-60"
+            data-testid="button-submit-registration"
+          >
+            {submitting ? "Submitting…" : "Complete Registration"}
+          </button>
+        </>
+      )}
+    </form>
+  );
+}
+
+function SelectField({
+  label,
+  name,
+  required,
+  options,
+}: {
+  label: string;
+  name: string;
+  required?: boolean;
+  options: string[];
+}) {
+  return (
+    <div>
+      <label className="text-sm font-semibold mb-2 block" htmlFor={name}>
+        {label} {required && <span className="text-destructive">*</span>}
+      </label>
+      <select
+        id={name}
+        name={name}
+        required={required}
+        defaultValue=""
+        className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+        data-testid={`select-${name}`}
+      >
+        <option value="" disabled>
+          Select…
+        </option>
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function Field({
+  label,
+  name,
+  type = "text",
+  required,
+  placeholder,
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  required?: boolean;
+  placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="text-sm font-semibold mb-2 block" htmlFor={name}>
+        {label} {required && <span className="text-destructive">*</span>}
+      </label>
+      <input
+        id={name}
+        name={name}
+        type={type}
+        required={required}
+        placeholder={placeholder}
+        className="w-full px-4 py-3 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+        data-testid={`input-${name}`}
+      />
+    </div>
+  );
+}
+
+function Sponsors() {
+  const tierClass: Record<string, string> = {
+    Gold: "from-amber-400 to-yellow-500",
+    Silver: "from-slate-300 to-slate-400",
+    Bronze: "from-orange-400 to-amber-600",
+  };
+  return (
+    <Section
+      id="sponsors"
+      kicker="Sponsors & Partners"
+      title="Powering the conversation."
+    >
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
+        {SPONSORS.map((s, i) => (
+          <div
+            key={i}
+            className="bg-white p-6 rounded-2xl border border-cyan-100 shadow-sm flex items-center gap-4"
+            data-testid={`card-sponsor-${i}`}
+          >
+            <div
+              className={`w-14 h-14 rounded-xl bg-gradient-to-br ${tierClass[s.tier]} flex items-center justify-center text-white font-extrabold text-lg shadow`}
+            >
+              {s.name
+                .split(" ")
+                .map((w) => w[0])
+                .join("")
+                .slice(0, 2)}
+            </div>
+            <div>
+              <div className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
+                {s.tier} Sponsor
+              </div>
+              <div className="font-bold">{s.name}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div>
+        <h3 className="text-2xl font-bold mb-5">Partners</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {PARTNERS.map((p, i) => (
+            <div
+              key={i}
+              className="aspect-[3/2] bg-white border border-cyan-100 rounded-xl shadow-sm flex items-center justify-center p-4 text-center text-sm font-semibold text-foreground/80 hover:shadow-md transition"
+              data-testid={`card-partner-${i}`}
+              title={p.name}
+            >
+              {p.logo ? (
+                <img
+                  src={p.logo}
+                  alt={p.name}
+                  className="max-h-full max-w-full object-contain"
+                />
+              ) : (
+                p.name
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-10">
+        <Link
+          href="/sponsorship"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-foreground text-background font-semibold hover:opacity-90"
+          data-testid="link-sponsorship-page"
+        >
+          View sponsorship opportunities →
+        </Link>
+      </div>
+    </Section>
+  );
+}
+
+function Dates() {
+  return (
+    <Section id="dates" kicker="Important Dates" title="Mark your calendar.">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {DATES.map((d, i) => (
+          <div
+            key={i}
+            className={`p-6 rounded-2xl border ${
+              i === DATES.length - 1
+                ? "bg-gradient-to-br from-primary to-secondary text-white border-transparent"
+                : "bg-white border-cyan-100"
+            } shadow-sm`}
+            data-testid={`card-date-${i}`}
+          >
+            <div
+              className={`text-xs uppercase tracking-wider font-semibold mb-2 ${i === DATES.length - 1 ? "opacity-90" : "text-primary"}`}
+            >
+              {d.date}
+            </div>
+            <div
+              className={`font-semibold ${i === DATES.length - 1 ? "text-white" : "text-foreground"}`}
+            >
+              {d.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+function Contact() {
+  return (
+    <Section
+      id="contact"
+      kicker="Contact"
+      title="Get in touch with the secretariat."
+    >
+      <div className="grid md:grid-cols-2 gap-8">
+        <div className="bg-white p-8 rounded-2xl border border-cyan-100 shadow-sm space-y-4">
+          <div>
+            <div className="text-xs uppercase tracking-wider font-semibold text-primary mb-1">
+              Email
+            </div>
+            <a
+              href="mailto:secretariat@particleswithoutborders.org"
+              className="text-lg font-semibold hover:underline"
+            >
+              secretariat@particleswithoutborders.org
+            </a>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-wider font-semibold text-primary mb-1">
+              Venue
+            </div>
+            <div className="text-lg font-semibold">
+              Kuala Lumpur Convention Centre (KLCC)
+            </div>
+            <div className="text-muted-foreground">
+              Jalan Pinang, 50088 Kuala Lumpur, Malaysia
+            </div>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-wider font-semibold text-primary mb-1">
+              Date
+            </div>
+            <div className="text-lg font-semibold">16 November 2026</div>
+          </div>
+        </div>
+        <div className="rounded-2xl overflow-hidden border border-cyan-100 shadow-sm min-h-[280px]">
+          <iframe
+            title="KLCC location"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=101.7080%2C3.1500%2C101.7220%2C3.1620&layer=mapnik&marker=3.1560%2C101.7150"
+            className="w-full h-full min-h-[280px] border-0"
+          />
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="bg-gradient-to-br from-slate-900 via-cyan-950 to-emerald-950 text-white py-12 px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-3">
+          <img
+            src={logoUrl}
+            alt="logo"
+            className="h-12 w-auto bg-white/95 rounded-lg p-1"
+          />
+          <div>
+            <div className="font-bold">Particles Without Borders</div>
+            <div className="text-xs text-cyan-200/80">
+              Air Quality, Health &amp; Sustainable Solutions
+            </div>
+          </div>
+        </div>
+        <div className="text-sm text-cyan-200/70 text-center md:text-right">
+          © 2026 Particles Without Borders · KLCC, Kuala Lumpur
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function App() {
+  const [active, setActive] = useState("home");
+
+  useEffect(() => {
+    const onScroll = () => {
+      const sections = NAV.map((n) => document.getElementById(n.id)).filter(
+        Boolean,
+      ) as HTMLElement[];
+      const y = window.scrollY + 120;
+      for (let i = sections.length - 1; i >= 0; i--) {
+        if (sections[i].offsetTop <= y) {
+          setActive(sections[i].id);
+          return;
+        }
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const handleNav = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      window.scrollTo({ top: el.offsetTop - 80, behavior: "smooth" });
+    }
+  };
+
+  return (
+    <div className="min-h-screen gradient-bg">
+      <Header active={active} onNav={handleNav} />
+      <main>
+        <Hero onNav={handleNav} />
+        <About />
+        <CallForPapers />
+         <Dates />
+        <Registration />
+        <Organizers />
+        <Sponsors />
+        <Contact />
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+export default App;
