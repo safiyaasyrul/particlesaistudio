@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/registrations",
-      "destination": "https://YOUR_PROJECT_REF.supabase.co/functions/v1/registrations"
+      "destination": "/api/index.js"
     },
     {
       "source": "/api/admin/registrations",
